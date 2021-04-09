@@ -4,6 +4,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from utils import Constants, a_to_P, P_to_a
+
 
 
 class Roche(object):
@@ -42,12 +44,17 @@ class Roche(object):
     -------
     '''
 
-    def __init__(self, m1: float=None, m2: float=None, a: float=None, N: int=1000) -> None:
+    def __init__(self, m1: float, m2: float, a: float=None, P: float=None, N: int=1000) -> None:
 
-        self.m1 = m1
-        self.m2 = m2
+        if P is None and a is None: raise ValueError('either `P` or `a` must be specified')
 
-        self.a = a
+        if a is None: a = P_to_a(P, m1, m2)
+        if P is None: P = a_to_P(a, m1, m2)
+
+        self.m1 = m1 * c.Msun
+        self.m2 = m2 * c.Msun
+        self.a = a * c.Rsun
+        self.P = P * 24e0 * 3600e0
 
         self.N = N
 
@@ -70,15 +77,17 @@ class Roche(object):
         -------
         '''
 
+        eps = 1e-6
+
         iters = 10000
         for n in range(iters):
             dVX = self.dVXdx(a, b, x0)
             d2VX = self.d2VXdx2(a, b, x0)
 
             x1 = x0 - dVX/d2VX
-            err = abs(x1 - x0)/abs(x0 + self.EPS)
+            err = abs(x1 - x0)/abs(x0 + eps)
 
-            if err < self.EPS: break
+            if err < eps: break
             x0 = x1
 
         return x0
