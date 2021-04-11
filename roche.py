@@ -3,9 +3,14 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-from utils import Constants, a_to_P, P_to_a
-
+try:
+    from astropy import units,constans as u,c
+    is_astropy = True
+except:
+    print("astropy not installed, using internal units instead")
+    from utils import Constants as u
+    is_astropy = False
+from utils import a_to_P,P_to_a
 
 
 class Roche(object):
@@ -44,18 +49,19 @@ class Roche(object):
     -------
     '''
 
-    def __init__(self, m1: float, m2: float, a: float=None, P: float=None, N: int=1000) -> None:
+    def __init__(self, m1: float, m2: float, a: float=None, P: float=None, N: int=1000, is_astropy: bool=is_astropy) -> None:
 
         if P is None and a is None: raise ValueError('either `P` or `a` must be specified')
 
         if a is None: a = P_to_a(P, m1, m2)
         if P is None: P = a_to_P(a, m1, m2)
 
-        self.m1 = m1 * c.Msun
-        self.m2 = m2 * c.Msun
-        self.a = a * c.Rsun
+        self.m1 = m1 * u.Msun
+        self.m2 = m2 * u.Msun
+        self.a = a * u.Rsun
         self.P = P * 24e0 * 3600e0
-
+        if is_astropy:
+            self.P = self.P * u.s
         self.N = N
 
         self.x = np.linspace(-2*a, 2*a, self.N, dtype=np.float64)
@@ -112,9 +118,9 @@ class Roche(object):
 
         return V
 
-    def dVXdx(self, h1, h2, x):
-
-        return None
+    def dVXdx(self, _V1, h2, x):
+        return sp.diff(V,x)
+        
 
     def d2VXdx2(self, h1, h2, x):
 
