@@ -7,9 +7,10 @@ try:
     from astropy import units,constans as u,c
     is_astropy = True
 except:
-    print("asttropy not installed, using internal units instead")
+    print("astropy not installed, using internal units instead")
     from utils import Constants as u
     is_astropy = False
+from utils import a_to_P,P_to_a
 
 
 class Roche(object):
