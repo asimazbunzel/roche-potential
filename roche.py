@@ -92,23 +92,43 @@ class Roche(object):
 
         return x0
 
-    def Vf(self, x: list, y: list) -> np.ndarray:
+    def Vf(self, x: np.ndarray, y: np.ndarray, m1: float, m2: float, r_m1: np.array, r_m2: np.array) -> np.ndarray:
         '''Roche potential
         
-        Provided a grid of points, returns the value of the potential in the mesh
+        Provided a grid of points, returns the value of the potential in the mesh.
         
         Parameters
         ----------
-        x : `array`
+        x : `np.ndarray` x coordinate of field point
 
-        y : `array`
+        y : `np.ndarray` y coordinates of field points
+
+        m1 : `float` mass #1
+
+        m2 : `float` mass #2
+
+        r_m1 : `np.array` position of masses
+        
+        r_m2 : `np.array` position of masses
 
         Returns
         -------
-        V : `array`
+        V : `np.ndarray` 
         '''
 
-        V = 0
+        x_m1 = r_m1[0]*np.ones_like(x)           #X coordinate of mass 1
+        y_m1 = r_m1[1]*np.ones_like(y)           #Y coordinate of mass 1
+        x_m2 = r_m2[0]*np.ones_like(x)           #X coordinate of mass 2
+        y_m2 = r_m2[1]*np.ones_like(y)           #Y coordinate of mass 2
+        x_mc=(x_m1*m1+x_m2*m2)/(m1+m2)           #X coordinate of mass center 
+        y_mc=(y_m1*m1+y_m2*m2)/(m1+m2)           #Y coordinate of mass center
+
+        r_1 = np.sqrt((x-x_m1)**2 + (y-y_m1)**2) #Mesh of |r-r1|
+        r_2 = np.sqrt((x-x_m2)**2 + (y-y_m2)**2) #Mesh of |r-r2|
+        
+        a = np.linalg.norm((r_m2-r_m1),2)        #Distance from r2 to r1 = |r2 - r1|
+        
+        V = -c.G.value * ( m1/r_1 + m2/r_2 + (m1+m2)/a**3 * ((x-x_mc)**2 + (y-y_mc)**2))
 
         return V
 
