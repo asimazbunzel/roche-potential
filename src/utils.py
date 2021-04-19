@@ -47,7 +47,7 @@ def P_to_a(period: Union[float, np.ndarray], m1: Union[float, np.ndarray],
     period = period * 24e0 * 3600e0  # in sec
     m1 = m1 * c.Msun; m2 = m2 * c.Msun  # in g
 
-    separation = np.power(c.standard_cgrav * (m1+m2) * np.square(period/(2*pi)), one_third)
+    separation = np.power(c.standard_cgrav * (m1+m2) * np.square(period/(2*c.pi)), 1/3)
 
     return separation / Rsun
 
