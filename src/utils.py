@@ -82,3 +82,25 @@ def a_to_P(separation: Union[float, np.ndarray], m1: Union[float, np.ndarray],
     period = (2*c.pi) * period
 
     return period / (24e0 * 3600e0)
+
+
+def rlobe(m1: Union[float, np.ndarray], m2: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+    '''
+    Roche lobe approximation for a star using Eggleton (1983) formula
+
+    Parameters
+    ----------
+    M1: mass of primary star in [Msun]
+    M2: mass of secondary star in [Msun]
+    a: binary separation in [Rsun]
+
+    Returns
+    -------
+    RL: Roche lobe of primary star as a function of separation.
+    '''
+
+    q = np.power(m1/m2, 1/3)
+
+    RL = 0.49e0 * q**2 / (0.6 * q**2 + np.log(1+q))
+
+    return RL
