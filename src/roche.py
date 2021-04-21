@@ -246,7 +246,7 @@ class Roche(object):
         return xL3, VL3
 
 
-    def eq_vol(self, k, eq='L1', N=100000):
+    def eq_vol(self, star_id, lagrangian_point='L1', N=100000):
         '''Compute volume of an equipotential around a certain star in the binary
         
         For the three Lagrangian points (L1, L2, L3), one can compute the value of the
@@ -257,31 +257,32 @@ class Roche(object):
 
         Parameters
         ----------
-        k : `integer`
+        star_id : `integer`
            Id of the star around which the volume will be computed. Either `1` or `2` for the more
            (less) massive, respectively.
 
-        eq : `string`
-           Id of the equipotential to use. Options are: `L1`, `L2` or `L3`.
+        lagrangian_point : `string`
+           Id of the equipotential to use to compute its volume around `star_id`.
+           Options are: `L1`, `L2` or `L3`.
 
         N : `integer`
            Number of random draws for the MonteCarlo computation of the volume.
 
         Returns
         -------
-        Vol : `float`
+        volume : `float`
            Dimensionless volume inside the equipotential chosen around one of the stars.
 
         Reff : `float`
            Associated effective radii for the `vol` computed in units of separation.
         '''
 
-        if k != 1 and k != 2:
+        if star_id != 1 and star_id != 2:
             raise ValueError('`k` must be either 1 (m1) or 2 (m2).')
 
-        if eq != 'L1' and eq != 'L2' and eq != 'L3':
+        if lagrangian_point != 'L1' and lagrangian_point != 'L2' and lagrangian_point != 'L3':
             raise ValueError('`eq` must be either `L1`, `L2` or `L3`')
-
+        
         # Lagrangian point positions and potentials in dimensionless units
         xL1, _ = self.L1()
         xL2, _ = self.L2()
@@ -289,21 +290,21 @@ class Roche(object):
         xL1 = xL1 / self.a
         xL2 = xL2 / self.a
         xL3 = xL3 / self.a
-        dVl1 = self._Vdl(xL1, 0, 0)
-        dVl2 = self._Vdl(xL2, 0, 0)
-        dVl3 = self._Vdl(xL3, 0, 0)
+        VdimensionlessL1 = self._Vdl(xL1, 0, 0)
+        VdimensionlessL2 = self._Vdl(xL2, 0, 0)
+        VdimensionlessL3 = self._Vdl(xL3, 0, 0)
 
-        if eq == 'L1': eq = dVl1
-        if eq == 'L2': eq = dVl2
-        if eq == 'L3': eq = dVl3
+        if lagrangian_point == 'L1': equipotential = VdimensionlessL1
+        if lagrangian_point == 'L2': equipotential = VdimensionlessL2
+        if lagrangian_point == 'L3': equipotential = VdimensionlessL3
 
         # we split space with a plane crossing the L1 point
-        f = lambda x: self._Vdl(x, 0, 0) - dVl1
+        f = lambda x: self._Vdl(x, 0, 0) - VdimensionlessL1
 
         # depending on the id of the star, we will get the limits of the lobes which will
         # give the radius of a sphere around the id of the star
         eps = 1e-5
-        if k == 1:
+        if star_id == 1:
             x1 = optimize.brentq(f, xL3, eps)
             x2 = xL1
             r = max(abs(x1), abs(x2))
@@ -314,17 +315,16 @@ class Roche(object):
 
         # get random numbers with the right value in x coordinate. y and z will be used
         # to count which cases are inside the lobe
-        x = r * (2 * np.random.random(N) - 1) + (k-1)
+        x = r * (2 * np.random.random(N) - 1) + (star_id-1)
         y = r * (2 * np.random.random(N) - 1)
         z = r * (2 * np.random.random(N) - 1)
 
         # count points inside lobe which is the effective volume of the lobe
-        ps = self._Vdl(x, y, z)
-        kk = np.where(ps > eq)[0]
-        ef = len(kk) / N
-        Vol = (2 * r)**3 * len(kk) / N
+        dimensionless_Roche_potential = self._Vdl(x, y, z)
+        indexes = np.where(dimensionless_Roche_potential > equipotential)[0]
+        volume = (2 * r)**3 * len(indexes) / N
 
         # compute the radius of a sphere with the same volume
-        Reff = (Vol * (3 / 4) / np.pi)**(1/3)
+        Reff = (volume * (3 / 4) / np.pi)**(1/3)
 
-        return Vol, Reff
+        return volume, Reff
