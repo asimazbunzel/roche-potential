@@ -1,5 +1,7 @@
 
 from typing import Tuple, Union
+import sys
+sys.path.append('/home/asimazbunzel/Projects/mass-transfer/roche-potential/src/')
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,7 +18,7 @@ __all__ = ['get_xy_coords']
 
 
 
-def get_xy_coords(R: Roche, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray]:
+def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray]:
     '''Extract (X,Y) coordinates of an equipotential of the Roche model
     
     Parameters
@@ -60,7 +62,40 @@ def get_xy_coords(R: Roche, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.
     v = cs.collections[0].get_paths()[1].vertices
     xv = v[:,0]
     yv = v[:,1]
+    
+    mask = yv > 0
+    
+    xv = xv[mask]
+    yv = yv[mask]
 
     plt.close()
-
+    
     return xv, yv
+
+
+R = Roche(m1=10, m2=5, a=5)
+
+x, y = get_xy_coords(R, 'L1')
+
+vertices = []
+for k in range(len(x)):
+    vertices.append([x[k], y[k], 0e0])
+
+# make mesh
+# vertices = [(0, 0, 0), (1, 0, 0)]
+edges = []
+faces = []
+
+new_mesh = bpy.data.meshes.new('L1_mesh')
+new_mesh.from_pydata(vertices, edges, faces)
+new_mesh.update()
+
+# make object from mesh
+new_object = bpy.data.objects.new('L1_obj', new_mesh)
+
+# make collection
+new_collection = bpy.data.collections.new('L1_coll')
+bpy.context.scene.collection.children.link(new_collection)
+
+# add object to scene collection
+    new_collection.objects.link(new_object)
