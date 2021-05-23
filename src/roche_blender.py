@@ -38,7 +38,10 @@ def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray
        Y-axis coordinates of the Lagrangian point.
     '''
 
-    if R is None: raise ValueError('`R` must be a valid Roche object')
+    if not isinstance(R,Roche): raise ValueError('`R` must be a valid Roche object')
+
+    if lagrangian_point != 'L1' and lagrangian_point != 'L2' and lagrangian_point != 'L3':
+        raise ValueError('`lagrangian_point` not valid. Options are: `L1`, `L2` or `L3`')
 
     c = Constants()
 
@@ -98,4 +101,4 @@ new_collection = bpy.data.collections.new('L1_coll')
 bpy.context.scene.collection.children.link(new_collection)
 
 # add object to scene collection
-    new_collection.objects.link(new_object)
+new_collection.objects.link(new_object)
