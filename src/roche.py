@@ -4,7 +4,6 @@
 from typing import Union
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import optimize
 
 from utils import Constants, a_to_P, P_to_a
