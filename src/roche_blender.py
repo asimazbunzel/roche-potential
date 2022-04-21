@@ -1,10 +1,11 @@
 
 from typing import Tuple, Union
 import sys
+#modify the line below to your roche.py folder 
 sys.path.append('/home/asimazbunzel/Projects/mass-transfer/roche-potential/src/')
 
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 try:
     import bpy
     import bmesh
@@ -13,9 +14,9 @@ except ModuleNotFoundError:
 import sys
 import os
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir )
+#dir = os.path.dirname(bpy.data.filepath)
+#if not dir in sys.path:
+#    sys.path.append(dir )
     #print(sys.path)
 from roche import Roche
 from utils import Constants
@@ -68,7 +69,7 @@ def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray
         raise ValueError('`lagrangian_point` not valid. Options are: `L1`, `L2` or `L3`')
 
     # get contour and extract points
-#    cs = plt.contour(X/c.Rsun, Y/c.Rsun, -V, [-VL])
+    cs = plt.contour(X/c.Rsun, Y/c.Rsun, -V, [-VL])
     v = cs.collections[0].get_paths()[1].vertices
     xv = v[:,0]
     yv = v[:,1]
@@ -109,3 +110,10 @@ bpy.context.scene.collection.children.link(new_collection)
 
 # add object to scene collection
 new_collection.objects.link(new_object)
+
+
+objectToSelect = bpy.data.objects["L1_obj"]
+objectToSelect.select_set(True)    
+bpy.context.view_layer.objects.active = objectToSelect
+bpy.ops.object.editmode_toggle()
+bpy.ops.mesh.spin(steps=40, angle=6.28319, center=(0, 0, 0), axis=(-1, -0, -0))
