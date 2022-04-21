@@ -4,7 +4,7 @@ import sys
 sys.path.append('/home/asimazbunzel/Projects/mass-transfer/roche-potential/src/')
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 try:
     import bpy
     import bmesh
@@ -16,7 +16,8 @@ from utils import Constants
 
 __all__ = ['get_xy_coords']
 
-
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete()
 
 def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray]:
     '''Extract (X,Y) coordinates of an equipotential of the Roche model
@@ -61,7 +62,7 @@ def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray
         raise ValueError('`lagrangian_point` not valid. Options are: `L1`, `L2` or `L3`')
 
     # get contour and extract points
-    cs = plt.contour(X/c.Rsun, Y/c.Rsun, -V, [-VL])
+#    cs = plt.contour(X/c.Rsun, Y/c.Rsun, -V, [-VL])
     v = cs.collections[0].get_paths()[1].vertices
     xv = v[:,0]
     yv = v[:,1]
@@ -71,7 +72,7 @@ def get_xy_coords(R, lagrangian_point: str='L1') -> Tuple[np.ndarray, np.ndarray
     xv = xv[mask]
     yv = yv[mask]
 
-    plt.close()
+#    plt.close()
     
     return xv, yv
 
